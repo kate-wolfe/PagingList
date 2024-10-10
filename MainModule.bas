@@ -110,6 +110,12 @@ Do While compRow <= lastRow
 location = Complete.Cells(compRow, 5).Value2
 callNum = Complete.Cells(compRow, 2).Value2
 
+'The following is a "switch" statement. 
+'It looks at each "case" in order and checks if the variables (location and call number) match the case.
+'For example, the first case says: if the location is "New Books" or "Tech/Equipment" or if the location is "Adult" AND the call number is "Magazine"
+'then that case is TRUE, and the switch statement ends and the data (the row with the item info on it) is put into a row in the "New Books" sheet.
+'"New Books" being a physical location in the library.
+
 Select Case True
   Case location = "New Books", _
        location = "Tech/Equipment", _
@@ -137,10 +143,12 @@ Select Case True
     twoRow = twoRow + 1
 End Select
 
+'Go to the next row and run the switch statement again.
 compRow = compRow + 1
 
 Loop
 
+'Add in the header, and do some formatting.
 With Complete
     .Cells(1, 1).Value2 = "Last4"
     .Cells(1, 2).Value2 = "Call Number"
@@ -171,6 +179,7 @@ Set ws = Worksheets(wsName(i))
 
 lastRow = ws.Range("D1").SpecialCells(xlCellTypeLastCell).Row
 
+'Shorten call numbers to fit better on printed sheet.
     With ws.Range("D2:D" & lastRow)
         .Replace "FICTION", "FIC", xlPart
         .Replace "MYSTERY", "MYS", xlPart
@@ -190,6 +199,7 @@ lastRow = ws.Range("D1").SpecialCells(xlCellTypeLastCell).Row
         .Replace "ROMANCE", "ROM", xlPart
     End With
 
+'Set up the margins and stuff for printing.
     With ws.PageSetup
         .LeftHeader = "&A" 'Name of the sheet
         .CenterHeader = "&D &T" 'Date and Time the list was run
@@ -204,7 +214,8 @@ lastRow = ws.Range("D1").SpecialCells(xlCellTypeLastCell).Row
         .FitToPagesWide = 1
         .FitToPagesTall = False
     End With
-    
+
+'More formatting.
     With ws
         .Cells(1, 1).Value2 = "Found"
         .Cells(1, 2).Value2 = "NOS"
@@ -230,8 +241,9 @@ lastRow = ws.Range("D1").SpecialCells(xlCellTypeLastCell).Row
 ws.Range("A1:F" & lastRow).Sort key1:=ws.Range("D1"), Order1:=xlAscending, Header:=xlYes
 
 Next i
+'The above loops the code through the different tabs so each one is formatted the same and will print nicely.
 
-
+'The code below does almost the same as the above, but there are some differences for these tabs so they are in a separate loop statement.
 Dim ws2 As Worksheet
 Dim wsName2 As Variant
 Dim i2 As Long
@@ -328,6 +340,7 @@ lastRow = Complete.Range("A1").SpecialCells(xlCellTypeLastCell).Row
 Complete.AutoFilterMode = False
 
 'Red Bins first
+'If the pickup location is in Cambridge (at a branch) then the item will be moved to that tab.
 Complete.Range("A:F").AutoFilter Field:=6, Criteria1:="=CAMBRIDGE*"
 Complete.Range("A:F").AutoFilter Field:=5, Criteria1:=Array( _
         "Adult", "Audiovisual", "Large Print", "New Books", "Paperback", "Tech/Equipment"), _
@@ -340,6 +353,7 @@ RedBins.Range("C1").PasteSpecial xlPasteValuesAndNumberFormats
 Complete.AutoFilterMode = False
 
 'Grey Bins next
+'If the pickup location is outside of Cambridge, put the item in THAT tab.
 Complete.Range("A:F").AutoFilter Field:=6, Criteria1:="<>*CAMBRIDGE*"
 Complete.Range("A:F").AutoFilter Field:=5, Criteria1:=Array( _
         "Adult", "Audiovisual", "Large Print", "New Books", "Paperback", "Tech/Equipment"), _
